@@ -1,35 +1,19 @@
-"use client";
-import React, { useState } from "react";
+import axiosInstance from "@/app/config/axios.instance";
+import axios from "axios";
+import React from "react";
 
-const ProductView = () => {
-  const [selectedSize, setSelectedSize] = useState("M");
-  const [quantity, setQuantity] = useState(1);
+export async function getProductData(id) {
+  const response = await axiosInstance.get(`/product/${id}`);
+  return response.data;
+}
 
-  const product = {
-    title: "Nike Air Max 270",
-    description:
-      "The Nike Air Max 270 combines the exaggerated tongue from the Air Max 180 and classic elements from the Air Max 93. It features Nike's biggest heel Air unit yet, offering the plushest, smoothest ride ever.",
-    price: 150.0,
-    offerPrice: 129.99,
-    image:
-      "https://static.nike.com/a/images/f_auto/dpr_3.0,cs_srgb/w_363,c_limit/0ee4f790-971c-4333-abb6-cc85eee8951b/nike-just-do-it.png",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["#000000", "#FFFFFF", "#FF0000", "#0000FF"],
-    features: [
-      "Mesh and synthetic upper for lightweight breathability",
-      "Large Max Air unit delivers plush cushioning",
-      "Foam midsole for responsive cushioning",
-      "Rubber outsole for durable traction",
-    ],
-    rating: 4.5,
-    reviews: 128,
-    inStock: true,
-  };
+const ProductView = async ({ params }) => {
+  const { productid } = await params;
+  console.log(productid, "dfsfsdf");
 
-  const incrementQuantity = () =>
-    setQuantity((prev) => (prev < 10 ? prev + 1 : prev));
-  const decrementQuantity = () =>
-    setQuantity((prev) => (prev > 1 ? prev - 1 : prev));
+  const selectedSize = "M";
+  const quantity = 1;
+  const { product } = await getProductData(productid);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,7 +98,6 @@ const ProductView = () => {
                   {product.sizes.map((size) => (
                     <button
                       key={size}
-                      onClick={() => setSelectedSize(size)}
                       className={`w-12 h-12 rounded-lg border-2 flex items-center justify-center font-medium transition-all
                         ${
                           selectedSize === size
@@ -150,10 +133,7 @@ const ProductView = () => {
                   Quantity
                 </label>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={decrementQuantity}
-                    className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50"
-                  >
+                  <button className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50">
                     <svg
                       className="w-4 h-4 text-gray-600"
                       fill="none"
@@ -171,10 +151,7 @@ const ProductView = () => {
                   <span className="w-12 text-center font-medium">
                     {quantity}
                   </span>
-                  <button
-                    onClick={incrementQuantity}
-                    className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50"
-                  >
+                  <button className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50">
                     <svg
                       className="w-4 h-4 text-gray-600"
                       fill="none"

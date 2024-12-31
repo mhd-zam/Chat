@@ -1,67 +1,13 @@
+"use server";
 import React from "react";
 import Redirect from "./component/Redirect";
+import { product } from "./database/product";
+import axios from "axios";
+import axiosInstance from "./config/axios.instance";
 
 export async function getProductData() {
-  return {
-    products: [
-      {
-        title: "Nike Air Max 270",
-        image:
-          "https://static.nike.com/a/images/f_auto/dpr_3.0,cs_srgb/w_363,c_limit/0ee4f790-971c-4333-abb6-cc85eee8951b/nike-just-do-it.png",
-        price: 150.0,
-        offerPrice: 129.99,
-      },
-      {
-        title: "Samsung Galaxy S24",
-        image:
-          "https://www.kimstore.com/cdn/shop/articles/S24_Ultra_Banner.png?v=1705634996",
-        price: 999.99,
-        offerPrice: 899.99,
-      },
-      {
-        title: "Apple AirPods Pro",
-        image:
-          "https://www.apple.com/newsroom/images/product/airpods/standard/Apple_AirPods-Pro_New-Design_102819_big.jpg.large.jpg",
-        price: 249.99,
-        offerPrice: 199.99,
-      },
-      {
-        title: "Sony WH-1000XM4 Headphones",
-        image:
-          "https://sony.scene7.com/is/image/sonyglobalsolutions/09-15?$large360ViewerImage$",
-        price: 349.99,
-        offerPrice: 279.99,
-      },
-      {
-        title: 'LG 55" 4K Smart TV',
-        image:
-          "https://www.lg.com/content/dam/channel/wcms/in/images/tv/feature/oled2023/TV-OLED-B3-02-Intro-Visual-Mobile.jpg",
-        price: 699.99,
-        offerPrice: 599.99,
-      },
-      {
-        title: "PlayStation 5 Console",
-        image:
-          "https://cdn.vox-cdn.com/uploads/chorus_asset/file/22015297/vpavic_4278_20201030_0119.jpg",
-        price: 499.99,
-        offerPrice: 449.99,
-      },
-      {
-        title: "MacBook Air M2",
-        image:
-          "https://img.freepik.com/premium-photo/laptop-with-word-macbook-screen_662214-52672.jpg",
-        price: 1199.99,
-        offerPrice: 1049.99,
-      },
-      {
-        title: "Dyson V15 Vacuum",
-        image:
-          "https://dyson-h.assetsadobe2.com/is/image/content/dam/dyson/leap-petite-global/direct-journey/products/vacuum-cleaners/sticks/v15/pdp/variants/carousel/V15_Yellow_Non-HEPA_Hero-carousel_1.jpg?$responsive$&cropPathE=desktop&fit=stretch,1&wid=1920",
-        price: 699.99,
-        offerPrice: 599.99,
-      },
-    ],
-  };
+  const response = await axiosInstance.get("/");
+  return response.data;
 }
 
 const ProductGrid = async () => {
@@ -95,7 +41,7 @@ const ProductGrid = async () => {
                   className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  -{calculateDiscount(product.price, product.offerPrice)}%
+                  -{calculateDiscount(product.price, product?.offerPrice)}%
                 </div>
               </div>
 
@@ -108,10 +54,10 @@ const ProductGrid = async () => {
                 {/* Price Container */}
                 <div className="flex items-baseline gap-3 mb-4">
                   <span className="text-2xl font-bold text-gray-900">
-                    ${product.offerPrice.toFixed(2)}
+                    ${product.offerPrice?.toFixed(2)}
                   </span>
                   <span className="text-sm text-gray-500 line-through">
-                    ${product.price.toFixed(2)}
+                    ${product.price?.toFixed(2)}
                   </span>
                 </div>
 
@@ -136,7 +82,7 @@ const ProductGrid = async () => {
                   {/* <button className="w-full bg-gray-900 text-white py-1 text-sm font-medium hover:bg-gray-800 transition-colors">
                     Quick View
                   </button> */}
-                  <Redirect />
+                  <Redirect url={`/product/${index}`} />
                 </div>
               </div>
             </div>
