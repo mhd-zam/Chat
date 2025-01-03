@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { Camera, User, Mail, Key, FileText } from "lucide-react";
+import { Camera, User, Mail, Key, FileText, FileImage } from "lucide-react";
 
-const UserProfileForm = () => {
+const UserProfileForm = ({ sendMessage }) => {
   const [formData, setFormData] = useState({
     username: "",
     userId: "",
     email: "",
     bio: "",
-    profilePicture: null,
+    profileUrl: "",
   });
 
   const handleInputChange = (e) => {
@@ -18,22 +18,28 @@ const UserProfileForm = () => {
     }));
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setFormData((prev) => ({
-      ...prev,
-      profilePicture: file,
-    }));
-  };
+  function login(formData) {
+    sendMessage(
+      {
+        type: "login",
+        ...formData,
+      },
+      null,
+      false
+    );
+    localStorage.setItem("userDetails", JSON.stringify(formData));
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    localStorage.setItem("token", "jkfdskjflkjdfslkjfdlkjsd");
     console.log("Form submitted:", formData);
+    login(formData);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-6 px-4">
-      <div className="max-w-md mx-auto">
+    <div className="h-screen flex flex-row items-center justify-center w-full bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-6 px-4">
+      <div className="min-w-96">
         <div className="bg-white/80 backdrop-blur-lg p-6 rounded-xl shadow-lg border border-gray-100">
           <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 text-center mb-6">
             Create Profile
@@ -45,9 +51,9 @@ const UserProfileForm = () => {
               <div className="relative w-24 h-24 group">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse group-hover:from-purple-500 group-hover:to-blue-500 p-1">
                   <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                    {formData.profilePicture ? (
+                    {formData.profileUrl ? (
                       <img
-                        src={URL.createObjectURL(formData.profilePicture)}
+                        src={formData.profileUrl}
                         alt="Profile preview"
                         className="w-full h-full object-cover"
                       />
@@ -57,18 +63,32 @@ const UserProfileForm = () => {
                   </div>
                 </div>
               </div>
-              <label className="inline-flex items-center px-4 py-2 border-2 border-transparent text-sm font-medium rounded-full text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-purple-600 hover:to-blue-600 cursor-pointer transition-all duration-300 hover:shadow-md">
-                <span>Upload Photo</span>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </label>
             </div>
 
             <div className="space-y-4">
+              {/* ProfileImage */}
+              <div>
+                <label
+                  htmlFor="profileUrl"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Profile Image Url
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                    <FileImage className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    id="profileUrl"
+                    name="profileUrl"
+                    required
+                    className="block w-full pl-8 pr-3 py-2 text-sm border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all duration-200"
+                    value={formData.profileUrl}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
               {/* Username */}
               <div>
                 <label

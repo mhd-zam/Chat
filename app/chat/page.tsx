@@ -5,100 +5,25 @@ import { useWebSocket } from "../hook/useWebSocket";
 import UserProfileForm from "../component/chat/createUser";
 
 const ChatInterface = () => {
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState("login_success");
+  const [chatMessage, setChatMessage] = useState([]);
+  const [users, setUsers] = useState([]);
 
   const { clearError, error, isConnected, messages, reconnect, sendMessage } =
     useWebSocket("ws://localhost:8080");
 
-  // Sample data - in a real app, this would come from your backend
-  const users = [
-    {
-      id: 1,
-      name: "Sarah Wilson",
-      avatar:
-        "https://www.shutterstock.com/image-vector/black-woman-smiling-portrait-vector-600nw-2281497689.jpg",
-      lastMessage: "Hey, how are you?",
-      time: "10:30 AM",
-      unread: 2,
-    },
-    {
-      id: 2,
-      name: "John Cooper",
-      avatar:
-        "https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-avatar-image-for-profile-png-image_13001877.png",
-      lastMessage: "The meeting is at 2 PM",
-      time: "9:15 AM",
-      unread: 0,
-    },
-    {
-      id: 3,
-      name: "Emma Thompson",
-      avatar:
-        "https://easy-peasy.ai/cdn-cgi/image/quality=80,format=auto,width=700/https://fdczvxmwwjwpwbeeqcth.supabase.co/storage/v1/object/public/images/f5b9613e-7853-4170-84fd-2015606585bf/9d3e2b98-8524-4fcb-bf17-74fa6fb78274.png",
-      lastMessage: "Thanks for your help!",
-      time: "Yesterday",
-      unread: 1,
-    },
-    {
-      id: 4,
-      name: "Michael Chen",
-      avatar:
-        "https://png.pngtree.com/png-vector/20230903/ourmid/pngtree-man-avatar-isolated-png-image_9935819.png",
-      lastMessage: "Let's catch up soon",
-      time: "Yesterday",
-      unread: 0,
-    },
-  ];
+  useEffect(() => {
+    if (messages?.type == "userList") {
+      setUsers(messages?.users);
+    }
+  }, [messages]);
 
-  //   const messages = [
-  //     {
-  //       id: 1,
-  //       userId: 1,
-  //       text: "Hey, how are you?",
-  //       timestamp: "10:30 AM",
-  //       isSent: false,
-  //     },
-  //     {
-  //       id: 2,
-  //       userId: 1,
-  //       text: "I'm doing great! How about you?",
-  //       timestamp: "10:31 AM",
-  //       isSent: true,
-  //     },
-  //     {
-  //       id: 3,
-  //       userId: 1,
-  //       text: "Just working on some new projects",
-  //       timestamp: "10:32 AM",
-  //       isSent: false,
-  //     },
-  //     {
-  //       id: 4,
-  //       userId: 1,
-  //       text: "That sounds interesting! Tell me more about it.",
-  //       timestamp: "10:33 AM",
-  //       isSent: true,
-  //     },
-  //   ];
-
-  function login() {
-    sendMessage({
-      type: "login",
-      userId: "xxxxx5523",
-      username: "zamil1263",
-    });
+  if (messages.type == "login_failed") {
+    return <UserProfileForm sendMessage={sendMessage} />;
   }
-
-  return <UserProfileForm />;
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <button
-        className="p-4 h-fit w-fit bg-blue-500 text-white"
-        onClick={login}
-      >
-        Login
-      </button>
       {/* Sidebar */}
       <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
         {/* Sidebar Header */}
@@ -122,21 +47,21 @@ const ChatInterface = () => {
         <div className="flex-1 overflow-y-auto">
           {users.map((user) => (
             <div
-              key={user.id}
+              key={user.userId}
               onClick={() => setSelectedUser(user)}
               className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
-                selectedUser?.id === user.id ? "bg-blue-50" : ""
+                selectedUser?.userId === user.userId ? "bg-blue-50" : ""
               }`}
             >
               <div className="flex items-center">
                 <img
-                  src={user.avatar}
-                  alt={user.name}
+                  src={user.profileUrl}
+                  alt={user.username}
                   className="w-10 h-10 rounded-full"
                 />
                 <div className="ml-3 flex-1">
                   <div className="flex justify-between items-center">
-                    <h3 className="font-semibold">{user.name}</h3>
+                    <h3 className="font-semibold">{user.username}</h3>
                     <span className="text-sm text-gray-500">{user.time}</span>
                   </div>
                   <div className="flex justify-between items-center">
@@ -177,7 +102,7 @@ const ChatInterface = () => {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((message) => (
+              {chatMessage?.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${

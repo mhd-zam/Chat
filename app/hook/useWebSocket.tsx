@@ -52,6 +52,20 @@ export const useWebSocket = (url: string): UseWebSocketReturn => {
         setIsConnected(true);
         setError(null);
         reconnectAttempts.current = 0;
+
+        try {
+          const user = JSON.parse(localStorage.getItem("userDetails"));
+          ws.send(
+            JSON.stringify({
+              type: "authenticate",
+              token: localStorage.getItem("token"),
+              ...user,
+            })
+          );
+        } catch (err) {
+          console.error("Error sending initial connection message:", err);
+          setError("Failed to send initial connection message");
+        }
       };
 
       // Connection closed
@@ -80,14 +94,8 @@ export const useWebSocket = (url: string): UseWebSocketReturn => {
         try {
           const data = JSON.parse(event.data);
           console.log(data, "dsfsfsdf");
-
-          const newMessage: Message = {
-            id: crypto.randomUUID(), // Generate unique ID for each message
-            timestamp: new Date().toISOString(),
-            ...data,
-          };
-
-          setMessages((prev) => [...prev, newMessage]);
+          setMessages(data);
+          console.log(data, "sdfsdfsdfdf");
         } catch (e) {
           console.error("Error parsing message:", e);
           setError("Failed to parse incoming message");
@@ -121,26 +129,34 @@ export const useWebSocket = (url: string): UseWebSocketReturn => {
   }, [connect]);
 
   // Send message function
-  const sendMessage = useCallback((text: string, sender: string) => {
-    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-      setError("Connection is not open");
-      return;
-    }
+  const sendMessage = useCallback(
+    (text: string, sender: string, isMessage: boolean) => {
+      if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+        setError("Connection is not open");
+        return;
+      }
 
-    try {
-      const message = {
-        type: "message",
-        text,
-        sender,
-        timestamp: new Date().toISOString(),
-      };
+      try {
+        let message = {};
+        if (isMessage) {
+          message = {
+            type: "message",
+            text,
+            sender,
+            timestamp: new Date().toISOString(),
+          };
+        } else {
+          message = text;
+        }
 
-      wsRef.current.send(JSON.stringify(message));
-    } catch (err) {
-      console.error("Error sending message:", err);
-      setError("Failed to send message");
-    }
-  }, []);
+        wsRef.current.send(JSON.stringify(message));
+      } catch (err) {
+        console.error("Error sending message:", err);
+        setError("Failed to send message");
+      }
+    },
+    []
+  );
 
   // Clear error function
   const clearError = useCallback(() => {
